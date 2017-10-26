@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.platform.upms.dao.FamilyEquipmentDao">
+    <resultMap id="BaseResultMap" type="com.platform.upms.model.FamilyEquipment">
+        <id column="id" jdbcType="VARCHAR" property="id" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+        <result column="number" jdbcType="VARCHAR" property="number" />
+        <result column="type_id" jdbcType="VARCHAR" property="typeId" />
+        <result column="gateway_id" jdbcType="VARCHAR" property="gatewayId" />
+        <result column="intro" jdbcType="VARCHAR" property="intro" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,`name`,`number`,type_id,gateway_id,intro,create_time
+    </sql>
+
+    <sql id="Extend_Column_List">
+        e.id,e.`name`,e.`number`,e.type_id,e.gateway_id,e.intro,e.create_time,t.name as typeName,g.number as gatewayNumber
+    </sql>
+
+    <select id="list" resultMap="BaseResultMap">
+      select
+      <include refid="Base_Column_List"/>
+        from d_family_equipment
+    </select>
+
+    <insert id="insert" parameterType="com.platform.upms.model.FamilyType">
+        insert into d_family_equipment (id,`name`,`number`,type_id,gateway_id,intro,create_time)
+        values (#{id},#{name},#{number},#{typeId},#{gatewayId},#{intro},#{createTime})
+    </insert>
+
+    <select id="findByPage" resultType="com.platform.upms.model.FamilyEquipment">
+        select
+        <include refid="Extend_Column_List"/>
+        from d_family_equipment as e
+        left join d_family_type t on t.id=e.type_id
+        left join d_gateway  g on g.id=e.gateway_id
+        where 1=1
+        order by number
+    </select>
+
+    <!--设备编号统计设备的个数-->
+    <select id="countNumber" parameterType="String" resultType="Long">
+        select count(*)
+        from d_family_equipment
+        where number=#{number}
+    </select>
+
+
+    <delete id="deletes">
+        delete from d_family_equipment where id in
+        <foreach item="ids" collection="array" open="(" separator="," close=")">
+            #{ids}
+        </foreach>
+    </delete>
+
+    <select id="selectById" parameterType="String" resultMap="BaseResultMap">
+        select
+        <include refid="Extend_Column_List"/>
+        from d_family_equipment as e
+        left join d_family_type t on t.id=e.type_id
+        left join d_gateway  g on g.id=e.gateway_id
+        where e.id=#{id}
+    </select>
+
+    <update id="update" parameterType="com.platform.upms.model.FamilyEquipment">
+        update d_family_equipment
+        <set>
+            <if test="name != null and name !=''" >
+                name = #{name},
+            </if>
+            <if test="number != null and number !=''" >
+                number = #{number},
+            </if>
+            <if test="typeId != null and typeId !=''" >
+                type_id = #{typeId},
+            </if>
+            <if test="gatewayId != null and gatewayId !=''" >
+                gateway_id = #{gatewayId},
+            </if>
+            <if test="intro != null and intro !=''" >
+                intro = #{intro},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+</mapper>

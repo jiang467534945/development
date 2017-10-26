@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper  namespace="com.platform.upms.dao.UpmsUserDao">
+    <resultMap id="BaseResultMap" type="com.platform.upms.model.UpmsUser">
+        <id column="id" jdbcType="INTEGER" property="id" />
+        <result column="user_name" jdbcType="VARCHAR" property="userName" />
+        <result column="password" jdbcType="VARCHAR" property="password" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+        <result column="sex" jdbcType="VARCHAR" property="sex" />
+        <result column="id_number" jdbcType="VARCHAR" property="idNumber" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="last_login" jdbcType="TIMESTAMP" property="lastLogin" />
+        <result column="status" jdbcType="INTEGER" property="status" />
+        <result column="avalilable_space" jdbcType="DOUBLE" property="avalilableSpace" />
+        <result column="total_space" jdbcType="DOUBLE" property="totalSpace" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,user_name,password,name,sex,id_number,create_time,last_login,status,available_space,total_space
+    </sql>
+
+    <select id="selectByUserName" resultMap="BaseResultMap" parameterType="String">
+        select
+        <include refid="Base_Column_List"/>
+        from upms_user
+        where user_name=#{userName}
+    </select>
+
+    <select id="list" parameterType="com.platform.upms.model.UpmsUser" resultType="com.platform.upms.model.UpmsUser">
+        SELECT
+          <include refid="Base_Column_List"></include>
+        FROM upms_user
+    </select>
+
+    <select id="findByPage" parameterType="com.platform.upms.model.UpmsUser" resultType="com.platform.upms.model.UpmsUser">
+        SELECT
+        <include refid="Base_Column_List"></include>
+        FROM upms_user
+    </select>
+
+    <insert id="save" parameterType="com.platform.upms.model.UpmsUser">
+        insert into upms_user
+          (user_name,password,`name`,sex,id_number,create_time,last_login,status,available_space,total_space)
+        values
+          (#{userName},#{password},#{name},#{sex},#{idNumber},#{createTime},#{lastLogin},#{status},#{availableSpace},#{totalSpace})
+    </insert>
+
+    <delete id="deleteByIds">
+        DELETE FROM upms_user
+        WHERE id IN
+        <foreach collection="array" item="ids" open="(" separator="," close=")">
+            #{ids}
+        </foreach>
+    </delete>
+
+    <select id="findById" parameterType="string" resultType="com.platform.upms.model.UpmsUser">
+        SELECT id,user_name,password,name,sex,id_number,create_time,last_login,status,available_space,total_space
+        FROM upms_user
+        WHERE id = #{id}
+    </select>
+
+    <update id="edit" parameterType="com.platform.upms.model.UpmsUser">
+        UPDATE upms_user
+        SET
+          name = #{name},
+          <if test="password != null and password != ''">
+              password = #{password},
+          </if>
+        <if test="availableSpace != null and availableSpace != ''">
+            available_space = #{availableSpace},
+        </if>
+
+          sex = #{sex},
+          id_number = #{idNumber},
+          status = #{status},
+--           available_space = #{availableSpace},
+          total_space = #{totalSpace}
+        WHERE id = #{id}
+    </update>
+
+    <update id="update" parameterType="com.platform.upms.model.UpmsUser">
+         update upms_user
+        <set>
+        <if test="availableSpace !=null and availableSpace !=''">
+            available_space = #{availableSpace},
+        </if>
+        <if test="lastLogin !=null">
+              last_login = #{lastLogin},
+         </if>
+        </set>
+         where id=#{id}
+    </update>
+
+    <select id="findPermissionByUserId" parameterType="Integer" resultType="string">
+        SELECT
+          c.permission_id AS `permissionId`
+        FROM
+          upms_position_menu b
+        INNER JOIN
+          upms_position_user a
+        ON
+          b.position_id = a.position_id
+        AND
+          a.user_id = #{userId}
+        LEFT JOIN
+          upms_menu c
+        ON
+          b.menu_id = c.id
+        GROUP BY b.menu_id
+    </select>
+
+</mapper>

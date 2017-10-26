@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper  namespace="com.platform.upms.dao.ScheduleJobDao">
+    <resultMap id="BaseResultMap" type="com.platform.upms.model.ScheduleJob">
+        <id column="job_id" jdbcType="VARCHAR" property="jobId" />
+        <result column="job_name" jdbcType="VARCHAR" property="jobName" />
+        <result column="job_group" jdbcType="VARCHAR" property="jobGroup" />
+        <result column="job_status" jdbcType="VARCHAR" property="jobStatus" />
+        <result column="cron_expression" jdbcType="VARCHAR" property="cronExpression" />
+        <result column="description" jdbcType="VARCHAR" property="description" />
+        <result column="bean_class" jdbcType="VARCHAR" property="beanClass" />
+        <result column="method_name" jdbcType="VARCHAR" property="methodName" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        job_id,job_name,job_group,job_status,cron_expression,description,bean_class,method_name,create_time,update_time
+    </sql>
+
+    <!-- 分页查询调用此方法-->
+    <select id="findByPage" parameterType="com.platform.upms.model.ScheduleJob" resultType="com.platform.upms.model.ScheduleJob">
+        select
+        <include refid="Base_Column_List"></include>
+        from schedule_job
+    </select>
+
+    <!-- 保存定时任务 -->
+    <insert id="addTask" parameterType="com.platform.upms.model.ScheduleJob">
+        insert into schedule_job
+          (job_id,job_name,job_group,job_status,cron_expression,description,bean_class,method_name,create_time)
+        values
+          (#{jobId},#{jobName},#{jobGroup},#{jobStatus},#{cronExpression},#{description},#{beanClass},#{methodName},#{createTime})
+    </insert>
+
+    <!-- 查询所有-->
+    <select id="findAll" resultType="com.platform.upms.model.ScheduleJob">
+        select
+        <include refid="Base_Column_List"></include>
+        from schedule_job
+    </select>
+
+    <!-- 根据id查询 -->
+    <select id="selectById" parameterType="String" resultType="com.platform.upms.model.ScheduleJob">
+        select
+          <include refid="Base_Column_List"></include>
+        from schedule_job
+        where 1 = 1
+        and job_id = #{jobId}
+    </select>
+
+    <!-- 根据ids 查询-->
+    <select id="selectByIds" resultType="com.platform.upms.model.ScheduleJob">
+        select
+        <include refid="Base_Column_List"></include>
+        from schedule_job
+        where job_id in
+        <foreach collection="array" item="ids" open="(" separator="," close=")">
+            #{ids}
+        </foreach>
+    </select>
+
+    <!-- 根据id 删除任务信息-->
+    <delete id="deleteByIds">
+        delete
+        from schedule_job
+        where job_id in
+        <foreach collection="array" item="ids" open="(" separator="," close=")">
+            #{ids}
+        </foreach>
+    </delete>
+
+    <!-- 修改任务状态或者cron表达式的更新-->
+    <update id="updateJob" parameterType="com.platform.upms.model.ScheduleJob">
+        update schedule_job
+        <set>
+            <if test="jobStatus != null and jobStatus != ''">
+                job_status = #{jobStatus},
+            </if>
+            <if test="cronExpression != null and cronExpression != ''">
+                cron_expression = #{cronExpression},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        where job_id = #{jobId}
+    </update>
+
+</mapper>

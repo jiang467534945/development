@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:cache="http://www.springframework.org/schema/cache"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/cache
+                        http://www.springframework.org/schema/cache/spring-cache.xsd" >
+
+    <description>EhCache 集成配置</description>
+
+
+    <!-- Spring cache 配置-->
+    <cache:annotation-driven cache-manager ="ehCacheManager" proxy-target-class="true"/>
+
+    <!-- 创建 ehCacheManager -->
+    <bean id = "ehCacheManager" class= "org.springframework.cache.ehcache.EhCacheCacheManager">
+
+        <property name="cacheManager" ref="ehCacheManagerFactoryBean"/>
+    </bean>
+
+    <!-- 创建 shiroCacheManager -->
+    <bean id="shiroCacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">
+
+        <property name="cacheManager" ref="ehCacheManagerFactoryBean" />
+
+    </bean>
+
+    <!-- ehcache配置-->
+    <bean id="ehCacheManagerFactoryBean" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+
+        <property name="configLocation" value="classpath:config/ehcache.xml" />
+
+        <property name="shared" value="true"/>
+
+    </bean>
+
+
+
+</beans>  

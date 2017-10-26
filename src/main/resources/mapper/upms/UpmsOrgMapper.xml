@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.platform.upms.dao.UpmsOrgDao">
+
+    <resultMap id="BaseResultMap" type="com.platform.upms.model.UpmsOrg">
+        <id column="id" jdbcType="INTEGER" property="id" />
+        <result column="org_name" jdbcType="VARCHAR" property="orgName" />
+        <result column="p_id" jdbcType="VARCHAR" property="pId" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="description" jdbcType="VARCHAR" property="description" />
+    </resultMap>
+
+
+    <sql id="Extend_Column_List">
+        o.id,o.org_name,o.p_id,o.create_time,o.description,uo.org_name as pName
+    </sql>
+
+    <insert id="insert" parameterType="com.platform.upms.model.UpmsOrg" useGeneratedKeys="true" keyProperty="id">
+        insert into upms_org (id,org_name,p_id,create_time,description)
+        values (#{id},#{orgName},#{pId},#{createTime},#{description})
+    </insert>
+
+    <insert id="saveData" parameterType="com.platform.upms.model.UpmsOrg" useGeneratedKeys="true" keyProperty="id">
+        insert into upms_org (id,org_name,p_id,create_time,description)
+        values (#{id},#{orgName},#{pId},#{createTime},#{description})
+    </insert>
+
+    <!-- 根据 id 删除 -->
+    <delete id="deleteById" parameterType="string" >
+        delete from upms_org
+        where id = #{id}
+    </delete>
+
+    <update id="update" parameterType="com.platform.upms.model.UpmsOrg" >
+        update upms_org
+        <set>
+            <if test="orgName !=null and orgName !=''">
+                org_name = #{orgName},
+            </if>
+            <if test="pId != null">
+                p_id = #{pId},
+            </if>
+            <if test="description != null and description != ''">
+                description = #{description},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="findByPage" resultMap="BaseResultMap">
+        select
+        <include refid="Extend_Column_List"/>
+        from upms_org o
+        left join upms_org uo on o.p_id=uo.id
+        where 1=1
+    </select>
+
+    <!-- 查询顶级组织-->
+    <select id="getOrg" resultMap="BaseResultMap" parameterType="com.platform.upms.model.UpmsOrg">
+        select id,org_name,p_id,create_time,description
+        from upms_org
+        where id = 1
+    </select>
+
+    <!-- 查询所有组织-->
+    <select id="selectAllList" parameterType="com.platform.upms.model.UpmsOrg" resultType="com.platform.upms.model.UpmsOrg">
+        select id,org_name,p_id,create_time,description
+        from upms_org
+        where 1 = 1
+    </select>
+
+    <select id="listOrg" resultType="com.platform.upms.model.ZNode">
+        SELECT o.id,o.org_name AS name,o.p_id
+        FROM upms_org o
+        WHERE 1 = 1
+    </select>
+
+    <select id="get" parameterType="Integer" resultType="UpmsOrg">
+        SELECT id,org_name,p_id,create_time,description
+        FROM upms_org
+        WHERE id = #{id}
+    </select>
+
+    <delete id="deleteDataByIds">
+        DELETE FROM upms_org
+        WHERE id IN
+        <foreach collection="array" item="ids" open="(" separator="," close=")">
+            #{ids}
+        </foreach>
+    </delete>
+
+</mapper>

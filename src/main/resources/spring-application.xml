@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+                        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!-- 使用cglib 来生成代理方法 而不是jdk的 -->
+    <aop:aspectj-autoproxy proxy-target-class="true" />
+    <!-- 使用Annotation自动注册Bean，解决事物失效问题：在主容器中不扫描@Controller注解，在SpringMvc中只扫描@Controller注解。  -->
+    <context:component-scan base-package="com.platform"><!-- base-package 如果多个，用“,”分隔 -->
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+
+    <!--<context:component-scan base-package="com.jee.ssm.modules" >-->
+        <!--<context:include-filter type="regex" expression=".dao.*"/>-->
+        <!--<context:include-filter type="regex" expression=".service.*"/>-->
+    <!--</context:component-scan>-->
+
+    <!--<context:component-scan base-package="com.jee.ssm" >-->
+        <!--<context:include-filter type="regex" expression=".common.*"/>-->
+    <!--</context:component-scan>-->
+
+    <!-- 引入项目配置文件 -->
+    <bean id="projectConfigurer"
+          class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="locations">
+            <list>
+                <value>classpath:jdbc.properties</value>
+                <value>classpath:redis.properties</value>
+            </list>
+        </property>
+    </bean>
+    <!-- 引入框架配置文件 -->
+    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer">
+        <property name="properties" ref="projectConfigurer" />
+    </bean>
+
+    <!-- quartz -->
+    <bean id="schedulerFactoryBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean" />
+    <!--<bean id="springUtils" class="com.platform.common.utils.SpringUtils" />-->
+
+    <!--初始化定时任务，将状态为1的跑起来-->
+    <bean id="scheduleJobServiceImpl" class="com.platform.upms.service.impl.ScheduleJobServiceImpl" init-method="initScheduler"/>
+
+
+    <!-- 引入框架配置文件 -->
+    <!--<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer">-->
+        <!--<property name="properties" ref="projectConfigurer" />-->
+    <!--</bean>-->
+
+    <!-- 引入Shiro安全配置 -->
+    <import resource="classpath:spring-shiro.xml"/>
+
+    <!-- 引入Mybatis配置 -->
+    <import resource="classpath:spring-mybatis.xml"/>
+
+    <!-- 引入缓存配置 -->
+   <import resource="classpath:spring-cache.xml"/>
+    <!-- 引入redis缓存配置 -->
+<!--
+    <import resource="classpath:spring-redis.xml"/>
+-->
+
+    <!-- 引入WebSocket配置 -->
+   <!--<import resource="classpath:spring/spring-websocket.xml"/>-->
+
+</beans>  

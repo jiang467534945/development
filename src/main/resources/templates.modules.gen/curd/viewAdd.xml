@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<template>
+    <name>viewAdd</name>
+    <filePath>src/main/webapp/WEB-INF/jsp/${moduleName}/${subModuleName}</filePath>
+    <fileName>${className}Add.jsp</fileName>
+    <content><![CDATA[
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ include file="/WEB-INF/jsp/include/taglib.jsp"%>
+<div class="row">
+    <div class="col-md-12">
+     <form  class="form-horizontal" id="addForm" >
+        <div class="panel panel-default">
+                <div class="panel-body">
+                   <div class="row">
+             <div class="col-md-6">
+
+      <#list table.columnList as c>
+			<#if c.isEdit?? && c.isEdit == "1" && (c.isNotBaseField || c.simpleJavaField == 'remarks')>
+             <div class="form-group">
+            <div class="col-md-9">
+              <div class="input-group">
+               <span class="input-group-addon"><span class="fa fa-eye"></span></span>
+                  <input type="text" class="form-control" name="${c.javaFieldId}" value="" >
+              </div>
+              <span class="help-block">请输入${c.javaFieldId}名称</span>
+             </div>
+       </div>
+        </#if>
+    </#list>
+</div>
+</div>
+ </div>
+   <div class="panel-footer">
+                    <button class="btn btn-default">Clear Form</button>
+                    <input type="button"class="btn btn-primary" onclick="save()" value="保存">
+                </div>
+</div>
+     </form>
+    </div>
+    </div>
+	<script>
+    function save() {
+        var param = serializeForm("addForm");
+        $.ajax({
+            type: 'post',
+            dataType: 'json',
+            data: param,
+            async: true,
+            url: '/${urlPrefix}/save',
+            success: function (data) {
+                alert(data);
+            },error: function () {
+                alert("保存未成功")
+            }
+
+        })
+    }
+</script>
+]]>
+    </content>
+</template>

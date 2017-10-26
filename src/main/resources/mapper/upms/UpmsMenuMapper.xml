@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.platform.upms.dao.UpmsMenuDao">
+    <resultMap id="BaseResultMap" type="com.platform.upms.model.UpmsMenu">
+        <id column="id" jdbcType="INTEGER" property="id" />
+        <result column="menu_name" jdbcType="VARCHAR" property="menuName" />
+        <result column="p_id" jdbcType="INTEGER" property="pId" />
+        <result column="url" jdbcType="VARCHAR" property="url" />
+        <result column="icon" jdbcType="VARCHAR" property="icon" />
+        <result column="sort" jdbcType="INTEGER" property="sort" />
+        <result column="menu_context" jdbcType="INTEGER" property="menuContext" />
+
+    </resultMap>
+
+    <sql id="zNodeColums">
+        a.id,
+        a.p_id,
+        a.menu_name AS `name`,
+        b.menu_id AS `checked`
+    </sql>
+
+    <sql id="menuColumns">
+        a.id,
+        a.p_id AS "parent.id",
+        a.p_id,
+        a.menu_name,
+        a.url,
+        a.icon,
+        a.sort,
+        a.menu_context,
+        p.menu_name AS "parent.menuName"
+    </sql>
+    <sql id="Base_Column_List">
+        id,menu_name,p_id,url,icon,sort,menu_context
+    </sql>
+    <sql id="menuJoins">
+        LEFT JOIN upms_menu p ON p.id = a.p_id
+    </sql>
+
+    <select id="selectList" resultMap="BaseResultMap" parameterType="com.platform.upms.model.UpmsMenu">
+        select
+        <include refid="Base_Column_List" />
+        FROM
+        upms_menu
+        <where>
+            <if test="id != null">
+                AND id = #{id}
+            </if>
+            <if test="menuName != null and menuName != ''">
+                AND menu_name LIKE
+                <if test="dbName == 'oracle'">'%'||#{menuName}||'%'</if>
+                <if test="dbName == 'mssql'">'%'+#{menuName}+'%'</if>
+                <if test="dbName == 'mysql'">CONCAT('%', #{menuName}, '%')</if>
+            </if>
+            <if test="pId != null ">
+                AND p_id = #{pId}
+            </if>
+            AND id != 1
+        </where>
+    </select>
+
+    <select id="getMenu" resultMap="BaseResultMap" parameterType="com.platform.upms.model.UpmsMenu">
+        select
+        <include refid="Base_Column_List" />
+        FROM
+        upms_menu
+        where
+        id=1
+    </select>
+<!--    <select id="findAllList" resultMap="BaseResultMap" parameterType="com.platform.upms.model.UpmsMenu">
+        select
+        <include refid="Base_Column_List" />
+        FROM
+        upms_menu
+        where
+        ORDER BY sort
+    </select>-->
+    <insert id="saveData">
+    insert into upms_menu (menu_name,p_id,url,icon,sort,menu_context)
+    values (#{menuName},#{pId},#{url},#{icon},#{sort},#{menuContext})
+
+    </insert>
+    <select id="findAllList" resultType="com.platform.upms.model.UpmsMenu" >
+        SELECT
+        <include refid="menuColumns"/>
+        FROM upms_menu a
+        <include refid="menuJoins"/>
+         ORDER BY a.sort
+    </select>
+
+    <select id="list" resultType="com.platform.upms.model.UpmsMenu" parameterType="com.platform.upms.model.UpmsMenu">
+        SELECT
+        <include refid="menuColumns"/>
+        FROM upms_menu a
+        <include refid="menuJoins"/>
+        ORDER BY a.sort
+    </select>
+
+    <select id="findByPage" resultType="com.platform.upms.model.UpmsMenu" parameterType="com.platform.upms.model.UpmsMenu" >
+        SELECT
+        <include refid="menuColumns"/>
+        FROM upms_menu a
+        <include refid="menuJoins"/>
+        ORDER BY a.sort
+    </select>
+
+    <select id="findZnodeList" parameterType="com.platform.upms.model.UpmsOrg" resultType="com.platform.upms.model.ZNode">
+        SELECT
+        <include refid="zNodeColums"/>
+        FROM upms_menu a
+        LEFT JOIN upms_org_menu b ON a.id = b.menu_id AND b.org_id = #{id}
+        ORDER BY a.sort
+    </select>
+
+    <select id="get" parameterType="String" resultType="com.platform.upms.model.UpmsMenu">
+        select
+        <include refid="menuColumns"/>
+        from upms_menu a
+        <include refid="menuJoins"/>
+        where a.id=#{id}
+    </select>
+
+    <update id="update" parameterType="com.platform.upms.model.UpmsMenu" >
+        update upms_menu
+        <set>
+            <if test="menuName !=null and menuName !=''">
+                menu_name=#{menuName},
+            </if>
+            <if test="pId !=null">
+                p_id=#{pId},
+            </if>
+            <if test="url !=null and url !=''">
+                url=#{url},
+            </if>
+            <if test="icon !=null and icon !=''">
+                icon=#{icon},
+            </if>
+            <if test="sort !=null">
+                sort=#{sort},
+            </if>
+            <if test="menuContext !=null and menuContext !=''">
+                menu_context=#{menuContext},
+            </if>
+        </set>
+        where id=#{id}
+    </update>
+
+    <delete id="deleteDataByIds" >
+        delete from upms_menu where id in
+        <foreach collection="array" item="ids" open="(" separator="," close=")">
+            #{ids}
+        </foreach>
+    </delete>
+
+</mapper>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.platform.upms.dao.FamilyTypeDao">
+    <resultMap id="BaseResultMap" type="com.platform.upms.model.FamilyType">
+        <id column="id" jdbcType="VARCHAR" property="id" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+        <result column="number" jdbcType="VARCHAR" property="number" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,`name`,`number`
+    </sql>
+
+    <select id="listNoPage" resultMap="BaseResultMap">
+      select
+      <include refid="Base_Column_List"/>
+        from d_family_type
+    </select>
+
+    <insert id="insert" parameterType="com.platform.upms.model.FamilyType">
+        insert into d_family_type (id,`name`,`number`)
+        values (#{id},#{name},#{number})
+    </insert>
+
+    <!--带分页的查询-->
+    <select id="findByPage" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from d_family_type
+    </select>
+
+    <delete id="deletes">
+        delete from d_family_type where id in
+        <foreach item="ids" collection="array" open="(" separator="," close=")">
+            #{ids}
+        </foreach>
+    </delete>
+
+    <select id="selectById" parameterType="String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from d_family_type
+        where id=#{id}
+    </select>
+
+    <update id="update" parameterType="com.platform.upms.model.FamilyType">
+            update d_family_type
+            <set>
+                <if test="name != null and name !=''" >
+                    name = #{name},
+                </if>
+                <if test="number != null and number !=''" >
+                    number = #{number},
+                </if>
+            </set>
+            where id = #{id}
+    </update>
+
+</mapper>

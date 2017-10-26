@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.platform.upms.dao.UpmsOrgMenuDao">
+
+    <sql id="Extend_Column_List">
+      org_id,menu_id
+    </sql>
+
+    <sql id="zNodeColumns">
+        p.id,
+        p.p_id,
+        p.menu_name AS `name`,
+        b.menu_id AS `checked`
+    </sql>
+
+    <sql id="menuColumns">
+        a.org_id,
+        a.menu_id,
+        p.id  AS "upmsMenu.id",
+        p.p_id AS "upmsMenu.pId",
+        p.menu_name AS "upmsMenu.menuName",
+        p.url AS "upmsMenu.url",
+        p.icon AS "upmsMenu.icon",
+        p.sort AS "upmsMenu.sort",
+        b.menu_id AS checked
+    </sql>
+    <sql id="menuJoins">
+        LEFT JOIN upms_menu p ON a.menu_id = p.id
+    </sql>
+    <insert id="saveData" parameterType="com.platform.upms.model.UpmsOrgMenu">
+        insert into upms_org_menu (org_id,menu_id)
+        values (#{orgId},#{menuId})
+    </insert>
+    <select id="findList" resultType="UpmsOrgMenu" parameterType="com.platform.upms.model.UpmsOrgMenu">
+        select
+        <include refid="zNodeColumns" />
+        FROM
+        upms_org_menu a
+        <include refid="menuJoins" />
+        LEFT JOIN upms_org_menu b ON a.menu_id = b.menu_id AND b.org_id = #{childId}
+        <where>
+            <if test="orgId != null">
+                AND a.org_id = #{orgId}
+            </if>
+        </where>
+        ORDER BY p.sort
+    </select>
+
+    <select id="findZnodeList" resultType="com.platform.upms.model.ZNode" parameterType="com.platform.upms.model.UpmsOrgMenu">
+        select
+        <include refid="zNodeColumns" />
+        FROM
+        upms_org_menu a
+        <include refid="menuJoins" />
+        LEFT JOIN upms_org_menu b ON a.menu_id = b.menu_id AND b.org_id = #{childId}
+        <where>
+            <if test="orgId != null">
+                AND a.org_id = #{orgId}
+            </if>
+        </where>
+        ORDER BY p.sort
+    </select>
+
+    <delete id="deleteByOrgId" parameterType="Integer">
+        DELETE FROM upms_org_menu
+        WHERE org_id = #{orgId}
+    </delete>
+
+    <insert id="saveArray">
+        INSERT INTO upms_org_menu
+        (org_id,menu_id)
+        VALUES
+        <foreach collection="menuId" item="item" index="index" separator=",">
+            (#{orgId},#{item})
+        </foreach>
+    </insert>
+
+</mapper>

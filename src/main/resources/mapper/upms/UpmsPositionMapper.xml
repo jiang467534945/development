@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper  namespace="com.platform.upms.dao.UpmsPositionDao">
+    <resultMap id="BaseResultMap" type="com.platform.upms.model.UpmsPosition">
+        <id column="id" jdbcType="INTEGER" property="id" />
+        <result column="position_name" jdbcType="VARCHAR" property="positionName" />
+        <result column="org_id" jdbcType="INTEGER" property="orgId" />
+        <result column="description" jdbcType="VARCHAR" property="description" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,position_name,org_id,description,create_time
+    </sql>
+
+    <!-- 不带分页查询所有-->
+    <select id="findAllList" resultType="com.platform.upms.model.UpmsPosition">
+        select p.id,p.position_name,p.org_id,p.description,p.create_time
+        from upms_position p
+        left join upms_org o on p.org_id = o.id
+        where 1 = 1
+    </select>
+
+    <!-- 分页查询调用此方法-->
+    <select id="list" resultType="com.platform.upms.model.UpmsPosition" parameterType="com.platform.upms.model.UpmsPosition">
+        select p.id,p.position_name,p.org_id,p.description,p.create_time,o.org_name as orgName
+        from upms_position p
+        left join upms_org o on p.org_id = o.id
+        where 1 = 1
+    </select>
+
+    <!-- 保存 -->
+    <insert id="save" parameterType="com.platform.upms.model.UpmsPosition">
+        insert into upms_position
+          (position_name,org_id,description,create_time)
+        values
+          (#{positionName},#{orgId},#{description},#{createTime})
+    </insert>
+
+    <select id="findByPage" parameterType="com.platform.upms.model.UpmsPosition" resultType="com.platform.upms.model.UpmsPosition">
+        select p.id,p.position_name,p.org_id,p.description,p.create_time,o.org_name as orgName
+        from upms_position p
+        left join upms_org o on p.org_id = o.id
+        where 1 = 1
+    </select>
+
+    <!-- 删除-->
+    <delete id="deleteByIds">
+        delete from upms_position
+        where id in
+        <foreach collection="array" item="ids" open="(" separator="," close=")">
+            #{ids}
+        </foreach>
+    </delete>
+
+    <!-- 根据id 查询-->
+    <select id="selectById" parameterType="com.platform.upms.model.UpmsPosition" resultType="com.platform.upms.model.UpmsPosition">
+        select p.id,p.position_name,p.org_id,p.description,p.create_time,o.org_name as orgName
+        from upms_position p
+        left join upms_org o on p.org_id = o.id
+        where 1 = 1
+        and p.id = #{id}
+    </select>
+
+    <!-- 根据id 修改-->
+    <update id="updateById" parameterType="com.platform.upms.model.UpmsPosition">
+        update upms_position
+        set
+        <if test="positionName != null and positionName != ''">
+            position_name = #{positionName},
+        </if>
+        <if test="orgId != null and orgId != ''">
+            org_id = #{orgId},
+        </if>
+        <if test="description != null and description != ''">
+            description = #{description}
+        </if>
+        where id = #{id}
+    </update>
+
+    <select id="get" parameterType="Integer" resultType="com.platform.upms.model.UpmsPosition">
+        SELECT id,position_name,org_id,create_time,description
+        FROM upms_position
+        WHERE id = #{id}
+    </select>
+
+    <select id="menuList" parameterType="com.platform.upms.model.UpmsPosition" resultType="com.platform.upms.model.ZNode">
+        SELECT
+          um.id,um.p_id,um.menu_name AS `name`,upm.menu_id AS `checked`
+        FROM upms_org_menu om
+        LEFT JOIN upms_menu um
+        ON om.menu_id = um.id
+        LEFT JOIN upms_position_menu upm
+        ON om.menu_id = upm.menu_id AND upm.position_id = #{id}
+        WHERE om.org_id = #{orgId}
+        ORDER BY um.sort
+    </select>
+
+</mapper>

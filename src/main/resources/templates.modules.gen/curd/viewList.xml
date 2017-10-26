@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<template>
+	<name>viewList</name>
+	<filePath>src/main/webapp/WEB-INF/jsp/${moduleName}/${subModuleName}</filePath>
+	<fileName>${className}List.jsp</fileName>
+	<content><![CDATA[
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ include file="/WEB-INF/jsp/include/taglib.jsp"%>
+<html>
+<head>
+	<title>${functionNameSimple}管理</title>
+    <jsp:include page="../body/link-page.jsp" flush="true"/>
+</head>
+<body>
+<div class="panel">
+    <div class="panel-heading">
+        <button id="demo-dt-addrow-btn" class="btn btn-info" onclick="LAYER.addLay('layer-add','添加${functionNameSimple}','/${urlPrefix}/add')"><i class="fa fa-plus"></i> 添加</button>
+        <button class="btn btn-success" onclick="toEdit();"><i class="fa fa-plus"></i> 修改</button>
+        <button class="btn btn-primary" onclick="deleteAllCheck();"><i class="fa fa-minus"></i> 删除</button>
+    </div>
+    <form id="form" action="/${urlPrefix}/list" method="post">
+        <div class="panel-body">
+            <div id="demo-dt-addrow_wrapper" class="dataTables_wrapper form-inline dt-bootstrap no-footer">
+                <div class="newtoolbar">
+                    <div id="demo-custom-toolbar2" class="table-toolbar-left"></div>
+                </div>
+                <table id="table" class="table table-striped table-bordered dataTable no-footer dtr-inline" cellspacing="0" width="100%" role="grid" aria-describedby="demo-dt-addrow_info" style="width: 100%;" data-pn="${r"${page.pageNum}"}" data-ps="${r"${page.pageSize}"}" data-tp="${r"${page.totalPage}"}" data-tr="${r"${page.totalRecord}"}">
+                    <thead>
+                    <tr role="row">
+                       <th style="width: 20px;"><input type="checkbox" id="check-all" /></th>
+						<#list table.columnList as c>
+							<th>${c.comments}</th>
+					</#list>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    		<c:forEach items="${r"${page.list}"}" var="${className}">
+                          	<tr class="odd">
+				<#list table.columnList as c>
+				<td>
+					${"$"}{${className}.${c.javaFieldId}}
+					</td>
+				</#list>
+                          </tr>
+                            </c:forEach>
+                    </tbody>
+                </table>
+            </div>
+            <ul class="pagination">
+            </ul>
+        </div>
+    </form>
+</div>
+</body>
+<script type="text/javascript">
+    function deleteAllCheck() {
+        var ids = getAllCheck("form");
+        if(ids.length == 0){
+            layer.msg("至少选择一条数据");
+        } else {
+            layer.confirm("确定要删除" + ids.length + "条数据？",{title:"提示",btn:["确定","取消"]}, function(){
+                $.ajax({
+                    url:"/${urlPrefix}/delete",
+                    data:{"ids":ids.join(",")},
+                    type:"post",
+                    dataType:"json",
+                    success:function(data){
+                        if(data.success){
+                            layer.msg("删除成功");
+                            reloadPage();
+                        } else {
+                            layer.msg("系统异常，删除失败");
+                        }
+                    }
+                });
+            })
+        }
+    }
+
+    function toEdit(){
+        var id = getAllCheck("form");
+        if(id.length != 1){
+            layer.msg("请选择一条数据");
+        } else {
+            LAYER.addLay("layer_edit","添加","/${urlPrefix}/edit?id="+id);
+        }
+    }
+</script>
+<jsp:include page="../body/javascript-page.jsp" flush="true"/>
+</html>]]>
+	</content>
+</template>
